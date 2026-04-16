@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/github/license/hnchengzong/Keyboard-Tester?color=green" alt="License">
 </p>
 
-一个简单的键盘按键测试工具
+一个简单的键盘按键测试工具。
 
 ## ✨介绍
 
