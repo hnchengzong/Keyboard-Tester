@@ -2,6 +2,8 @@
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 
+![Bun](https://img.shields.io/badge/Bun-000000?logo=bun&logoColor=white)
+
 一个简单的键盘按键测试工具
 
 ## ✨介绍
