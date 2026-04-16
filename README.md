@@ -1,5 +1,7 @@
 # keyboard-tester
 
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+
 一个简单的键盘按键测试工具
 
 ## ✨介绍
@@ -14,8 +16,9 @@
 ## 📦安装与使用
 
 ```bash
+
 # 克隆项目
-git clone https://github.com/hnchengzong/Keyboard-Tester.git
+git clone --depth=1 https://github.com/hnchengzong/Keyboard-Tester.git
 
 # 进入项目目录
 cd ./Keyboard-Tester
@@ -24,4 +27,7 @@ cd ./Keyboard-Tester
 bun install
 
 # 启动
-bun dev```
+bun dev
+
+```
+
