@@ -1,150 +1,183 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+
+const MAX_LOG_ENTRIES = 30;
+
+const KEYBOARD_ROWS = [
+  ["Escape", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"],
+  ["Backquote", "Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9", "Digit0", "Minus", "Equal", "Backspace"],
+  ["Tab", "KeyQ", "KeyW", "KeyE", "KeyR", "KeyT", "KeyY", "KeyU", "KeyI", "KeyO", "KeyP", "BracketLeft", "BracketRight", "Backslash"],
+  ["CapsLock", "KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyH", "KeyJ", "KeyK", "KeyL", "Semicolon", "Quote", "Enter"],
+  ["ShiftLeft", "KeyZ", "KeyX", "KeyC", "KeyV", "KeyB", "KeyN", "KeyM", "Comma", "Period", "Slash", "ShiftRight"],
+  ["ControlLeft", "MetaLeft", "AltLeft", "Space", "AltRight", "ContextMenu", "ControlRight", "ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"],
+];
+
+const DISPLAY_NAMES: Record<string, string> = {
+  escape: "Esc",
+  backspace: "⌫",
+  tab: "Tab",
+  capslock: "Caps",
+  enter: "Enter",
+  shiftleft: "LShift",
+  shiftright: "RShift",
+  controlleft: "Ctrl",
+  controlright: "Ctrl",
+  metaleft: "Meta",
+  contextmenu: "Menu",
+  space: "Space",
+  arrowup: "↑",
+  arrowleft: "←",
+  arrowdown: "↓",
+  arrowright: "→",
+  minus: "-",
+  equal: "=",
+  backquote: "`",
+  altleft: "Alt",
+  altright: "Alt",
+  semicolon: ";",
+  quote: "'",
+  comma: ",",
+  period: ".",
+  slash: "/",
+  bracketleft: "[",
+  bracketright: "]",
+  backslash: "\\",
+  digit0: "0",
+  digit1: "1",
+  digit2: "2",
+  digit3: "3",
+  digit4: "4",
+  digit5: "5",
+  digit6: "6",
+  digit7: "7",
+  digit8: "8",
+  digit9: "9",
+  f1: "F1",
+  f2: "F2",
+  f3: "F3",
+  f4: "F4",
+  f5: "F5",
+  f6: "F6",
+  f7: "F7",
+  f8: "F8",
+  f9: "F9",
+  f10: "F10",
+  f11: "F11",
+  f12: "F12",
+};
+
+interface KeyInfo {
+  key: string;
+  code: string;
+  timestamp: number;
+}
 
 export default function KeyboardTest({ isTesting }: { isTesting: boolean }) {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-  const [inputLog, setInputLog] = useState<string[]>([]);
+  const [inputLog, setInputLog] = useState<KeyInfo[]>([]);
 
-  const keyboardRows = [
-    ["escape", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"],
-    ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "backspace"],
-    ["tab", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\"],
-    ["capslock", "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", "enter"],
-    ["shiftleft", "z", "x", "c", "v", "b", "n", "m", ",", ".", "/", "shiftright"],
-    ["controlleft", "metaleft", "altleft", " ", "altright", "controlright", "arrowup", "arrowleft", "arrowdown", "arrowright"],
-    ["numlock", "numpaddivide", "numpadmultiply", "numpadsubtract"],
-    ["numpad7", "numpad8", "numpad9", "numpadadd"],
-    ["numpad4", "numpad5", "numpad6"],
-    ["numpad1", "numpad2", "numpad3", "numpadequals"],
-    ["numpad0", "numpaddot", "numpadenter"],
-  ];
-
-  const displayNames: Record<string, string> = {
-    escape: "Esc",
-    backspace: "Backspace",
-    tab: "Tab",
-    capslock: "Caps",
-    enter: "Enter",
-    shiftleft: "Shift",
-    shiftright: "Shift",
-    controlleft: "Ctrl",
-    controlright: "Ctrl",
-    metaleft: "Win",
-    altleft: "Alt",
-    altright: "Alt",
-    " ": "Space",
-    arrowup: "↑",
-    arrowleft: "←",
-    arrowdown: "↓",
-    arrowright: "→",
-    numlock: "NumLock",
-    numpaddivide: "/",
-    numpadmultiply: "*",
-    numpadsubtract: "-",
-    numpadadd: "+",
-    numpadequals: "=",
-    numpad0: "0",
-    numpad1: "1",
-    numpad2: "2",
-    numpad3: "3",
-    numpad4: "4",
-    numpad5: "5",
-    numpad6: "6",
-    numpad7: "7",
-    numpad8: "8",
-    numpad9: "9",
-    numpaddot: ".",
-    numpadenter: "Enter",
-  };
-
-  const getKeyList = (key: string): string[] => {
-    const map: Record<string, string[]> = {
-      ctrl: ["controlleft", "controlright", "control"],
-      shift: ["shiftleft", "shiftright", "shift"],
-      alt: ["altleft", "altright", "alt"],
-      meta: ["metaleft", "metaright", "meta"],
-      enter: ["enter", "numpadenter"],
-      space: [" "],
-      escape: ["escape"],
-      backspace: ["backspace"],
-    };
-    if (key === "!") return ["1"];
-    if (key === "@") return ["2"];
-    if (key === "#") return ["3"];
-    if (key === "$") return ["4"];
-    if (key === "%") return ["5"];
-    if (key === "^") return ["6"];
-    if (key === "&") return ["7"];
-    if (key === "*") return ["numpadmultiply", "8"];
-    if (key === "(") return ["9"];
-    if (key === ")") return ["0"];
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    e.preventDefault();
+    const key = e.key.toLowerCase();
+    const code = e.code.toLowerCase();
     
-    if (key === "controlleft" || key === "controlright") return map.ctrl!;
-    if (key === "shiftleft" || key === "shiftright") return map.shift!;
-    if (key === "altleft" || key === "altright") return map.alt!;
-    if (key === "metaleft" || key === "metaright") return map.meta!;
-    if (key === "numpaddot") return ["numpaddot", "."];
-
-
-
+    setPressedKeys(prev => new Set(prev).add(key).add(code));
     
-    return [key];
-  };
+    setInputLog(prev => [{
+      key: e.key,
+      code: e.code,
+      timestamp: Date.now()
+    }, ...prev].slice(0, MAX_LOG_ENTRIES));
+  }, []);
+
+  const handleKeyUp = useCallback((e: KeyboardEvent) => {
+    const key = e.key.toLowerCase();
+    const code = e.code.toLowerCase();
+    
+    setPressedKeys(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(key);
+      newSet.delete(code);
+      return newSet;
+    });
+  }, []);
 
   useEffect(() => {
     if (!isTesting) return;
 
-    const down = (e: KeyboardEvent) => {
-      e.preventDefault();
-      const key = e.key.toLowerCase();
-      const code = e.code.toLowerCase();
-      setPressedKeys(prev => new Set(prev).add(key).add(code));
-      setInputLog(log => [key, ...log].slice(0, 30));
-    };
-
-    const up = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      const code = e.code.toLowerCase();
-      setPressedKeys(prev => {
-        const s = new Set(prev);
-        s.delete(key);
-        s.delete(code);
-        return s;
-      });
-    };
-
-    window.addEventListener("keydown", down);
-    window.addEventListener("keyup", up);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    
     return () => {
-      window.removeEventListener("keydown", down);
-      window.removeEventListener("keyup", up);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [isTesting]);
+  }, [isTesting, handleKeyDown, handleKeyUp]);
+
+  const clearLog = useCallback(() => {
+    setInputLog([]);
+    setPressedKeys(new Set());
+  }, []);
+
+  const getKeyDisplay = useCallback((code: string): string => {
+    const normalized = code.toLowerCase();
+    return DISPLAY_NAMES[normalized] || 
+           normalized.replace(/^key|^digit|^arrow/, "").toUpperCase();
+  }, []);
+
+  const isKeyActive = useCallback((code: string): boolean => {
+    const normalized = code.toLowerCase();
+    return pressedKeys.has(normalized) || 
+           pressedKeys.has(normalized.replace(/^key|^digit/, ""));
+  }, [pressedKeys]);
 
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col items-center gap-6 p-4">
-    <div className="w-full p-4 bg-white rounded-lg shadow h-32 overflow-y-auto">
-    {inputLog.length === 0 ? (
-    <p className="text-gray-400">按下按键将显示在这里...</p>
-    ) : (
-    <div className="w-full grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
-      {inputLog.map((k, i) => (
-        <div key={i} className="text-sm truncate">{k}</div>
-      ))}
-    </div>
-  )}
-</div>
+      <div className="w-full p-4 bg-white rounded-lg shadow">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-sm font-medium text-gray-700">按键历史</h3>
+          <button
+            onClick={clearLog}
+            className="text-xs px-2 py-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+            aria-label="清除历史记录"
+          >
+            清除
+          </button>
+        </div>
+        <div className="h-32 overflow-y-auto">
+          {inputLog.length === 0 ? (
+            <p className="text-gray-400 text-sm">按下按键将显示在这里...</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+              {inputLog.map((entry, i) => (
+                <div 
+                  key={`${entry.timestamp}-${i}`} 
+                  className="text-xs p-2 bg-gray-50 rounded border border-gray-200"
+                >
+                  <div className="font-medium truncate">{entry.key}</div>
+                  <div className="text-gray-500 text-[10px] truncate">{entry.code}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
-      <div className="flex flex-col gap-1 w-full">
-        {keyboardRows.map((row, rowIdx) => (
+      <div className="flex flex-col gap-1 w-full" role="group" aria-label="键盘布局">
+        {KEYBOARD_ROWS.map((row, rowIdx) => (
           <div key={rowIdx} className="flex justify-center gap-1 flex-wrap">
-            {row.map((key, idx) => {
-              const active = getKeyList(key).some(k => pressedKeys.has(k));
-              const label = displayNames[key] ?? key;
+            {row.map((code, idx) => {
+              const active = isKeyActive(code);
+              const label = getKeyDisplay(code);
               return (
                 <div
                   key={`${rowIdx}-${idx}`}
-                  className={`px-2 py-3 sm:px-3 sm:py-4 border rounded text-xs sm:text-sm font-medium transition-all
-                    ${active ? "bg-blue-500 text-white border-blue-600" : "bg-gray-100"}`}
+                  className={`px-2 py-3 sm:px-3 sm:py-4 border rounded text-xs sm:text-sm font-medium transition-all min-w-[2rem] text-center
+                    ${active 
+                      ? "bg-blue-500 text-white border-blue-600 shadow-md transform scale-105" 
+                      : "bg-gray-100 border-gray-300 hover:border-gray-400"
+                    }`}
+                  aria-pressed={active}
+                  title={`${code} (${label})`}
                 >
                   {label}
                 </div>

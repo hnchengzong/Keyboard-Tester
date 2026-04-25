@@ -8,7 +8,6 @@ export function App() {
       const [isTesting, setIsTesting] = useState(false);
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col items-center py-10 px-4">
-      {/* 标题 */}
       <h1 className="text-3xl font-bold text-slate-800 mb-6">Keyboard Tester</h1>
 
       <div className="flex gap-4 mb-8">
@@ -23,7 +22,6 @@ export function App() {
 
       </div>
 
-      {/* 下方：单独的键盘测试组件 */}
       <KeyboardTest isTesting={isTesting} />
     </div>
     
