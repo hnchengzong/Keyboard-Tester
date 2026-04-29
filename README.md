@@ -4,6 +4,7 @@
   <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
   <img src="https://img.shields.io/badge/Bun-000000?logo=bun&logoColor=white" alt="Bun">
   <img src="https://img.shields.io/badge/Tailwind%20CSS-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/Tauri-24C8D8?logo=tauri&logoColor=white" alt="Tauri">
   <img src="https://img.shields.io/github/license/hnchengzong/Keyboard-Tester?color=green" alt="License">
 </p>
 
